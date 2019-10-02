@@ -1,4 +1,3 @@
-
 //Argon Controller code for 3D-printing mesh network monitoring system
 //Assumes a network of 3 Xenon boards and 1 Argon
 //Yes, there is a mixture of String Class and cstring types here because 
@@ -20,6 +19,7 @@ float dht_dry=25.00;
 float dht_wet=50.00;
 
 int numsensors=2;
+boolean dryflag=false;
 
 //STARTUP(WiFi.selectAntenna(ANT_EXTERNAL));
 STARTUP(System.enableFeature(FEATURE_ETHERNET_DETECTION));
@@ -127,8 +127,12 @@ void dhtDataHandler(const char *event, const char *data) {
               devindex=get_dht_role(devstr);
               
              // snprintf(dhtmsg,32," %s is at %2.2f",devstr,dht_vals[0]);
-             snprintf(dhtmsg,32, "%s is at %2.2f",dht_dev[devindex].role,dht_vals[0]);
+              snprintf(dhtmsg,32, "%s is at %2.2f",dht_dev[devindex].role,dht_vals[0]);
               Particle.publish("DRYPOINT",dhtmsg);
+              if (dryflag=false) { 
+                  Mesh.publish("DHT_CMDS","DRYSTART");
+                  dryflag=true;
+              }
           }
           
           if (dht_vals[0] > dht_wet) { 
